@@ -10,6 +10,8 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { CarsService } from './cars.service';
+import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 /* 
     Los controladores o controllers son los que controlan rutas, los 
@@ -17,6 +19,7 @@ import { CarsService } from './cars.service';
 */
 
 @Controller('cars')
+// @UsePipes(ValidationPipe)
 export class CarsController {
   constructor(private readonly carsService: CarsService) {}
 
@@ -41,7 +44,8 @@ export class CarsController {
   */
 
   /*
-    El pipe de uuid sirve para comprar si el id es de uuid
+    El pipe de uuid sirve para comprar si el id es de uuid, o sea que si ni siquiera es
+    un uuid, no va a llegar al servicio y menos a la base de datos
   */
 
   @Get('/:id')
@@ -51,24 +55,21 @@ export class CarsController {
   }
 
   @Post()
-  createCar(@Body() body: any) {
-    return body;
+  createCar(@Body() createCarDto: CreateCarDto) {
+    return this.carsService.create(createCarDto);
   }
 
   @Patch('/:id')
   updateCar(
-    @Param('id', ParseIntPipe)
-    id: number,
-    @Body() body: any,
+    @Param('id', ParseUUIDPipe)
+    id: string,
+    @Body() updateCarDto: UpdateCarDto,
   ) {
-    return body;
+    return this.carsService.update(id, updateCarDto);
   }
 
   @Delete('/:id')
-  deleteCar(@Param('id', ParseIntPipe) id: number) {
-    return {
-      method: 'delete',
-      id,
-    };
+  deleteCar(@Param('id', ParseUUIDPipe) id: string) {
+    return this.carsService.delete(id);
   }
 }
